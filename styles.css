@@ -376,7 +376,8 @@ body{
   border-radius: 10px;
   text-decoration:none;
   position: relative;
-  color: rgba(255,255,255,.82);
+  /* Match header link tone so dropdown text doesn't look visually larger. */
+  color: rgba(255,255,255,.72);
   font-size: var(--nav-text-size);
 }
 .dropdown-item .dropdown-label{

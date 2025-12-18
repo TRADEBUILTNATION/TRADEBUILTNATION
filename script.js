@@ -92,7 +92,7 @@
       });
       if (match) return setActiveElements([match]);
 
-      // Hash match for dropdown items (e.g. resources.html#some-calculator)
+      // Hash match for dropdown items (e.g. calculators.html#some-calculator)
       const ddHashMatch = dropdownItems.find((a) => {
         try {
           const u = new URL(a.href);

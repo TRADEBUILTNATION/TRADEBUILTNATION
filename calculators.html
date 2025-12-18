@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="light dark" />
-    <title>TRADE BUILT | Resources</title>
+    <title>TRADE BUILT | Calculators</title>
     <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32-v2.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16-v2.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-v2.png" />
@@ -74,7 +74,9 @@
                 </button>
                 <ul class="dropdown-menu" id="resources-menu" data-state="closed" role="list">
                   <li>
-                    <a class="dropdown-item" href="resources.html#calculators"><span class="dropdown-label">Calculators</span></a>
+                    <a class="dropdown-item" href="calculators.html" aria-current="page"
+                      ><span class="dropdown-label">Calculators</span></a
+                    >
                   </li>
                 </ul>
               </li>
@@ -92,12 +94,19 @@
 
     <main id="main" class="main" role="main">
       <div class="shell">
-        <h1 class="hero-title">Resources</h1>
-        <p class="hero-subtitle">Reference tools, calculators, and field-ready resources.</p>
+        <h1 class="hero-title">Calculators</h1>
+        <p class="hero-subtitle">Quick field calculators and reference tools.</p>
       </div>
-      <div id="calculators"></div>
     </main>
+
+    <footer class="legal-footer" role="contentinfo" aria-label="Legal">
+      <div class="shell legal-footer__inner">
+        <small class="legal-footer__text">© <span data-year></span> TRADE BUILT. All rights reserved.</small>
+      </div>
+    </footer>
 
     <script src="script.js" defer></script>
   </body>
 </html>
+
+
