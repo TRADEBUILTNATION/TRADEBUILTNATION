@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>TRADE BUILT | HVAC/R</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32-v2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16-v2.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-v2.png" />
+    <link rel="manifest" href="site.webmanifest" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="site-header" role="banner">
+      <div class="shell">
+        <nav class="nav" aria-label="Primary">
+          <a class="brand" href="index.html" aria-label="TRADE BUILT (Home)">
+            <span class="sr-only">TRADE BUILT</span>
+            <span class="brand-badge" aria-hidden="true">
+              <img
+                class="brand-logo"
+                src="assets/TRADEBUILT.png"
+                alt=""
+                width="1050"
+                height="324"
+                decoding="async"
+                fetchpriority="high"
+                onerror="this.style.display='none'; this.closest('.brand').classList.add('brand--no-logo');"
+              />
+              <span class="brand-fallback" aria-hidden="true">TB</span>
+            </span>
+          </a>
+
+          <button
+            class="nav-toggle"
+            type="button"
+            aria-label="Open menu"
+            aria-controls="primary-menu"
+            aria-expanded="false"
+          >
+            <span class="nav-toggle-icon" aria-hidden="true"></span>
+          </button>
+
+          <div class="nav-panel" id="primary-menu" data-state="closed">
+            <ul class="nav-links" role="list">
+              <li><a class="nav-link" href="index.html">Home</a></li>
+              <li class="nav-item nav-item--dropdown">
+                <button
+                  class="nav-link dropdown-toggle"
+                  type="button"
+                  aria-haspopup="true"
+                  aria-current="page"
+                  aria-expanded="false"
+                  aria-controls="courses-menu"
+                >
+                  <span class="nav-label">Courses</span> <span class="dropdown-caret" aria-hidden="true"></span>
+                </button>
+                <ul class="dropdown-menu" id="courses-menu" data-state="closed" role="list">
+                  <li><a class="dropdown-item" href="hvacr.html" aria-current="page"><span class="dropdown-label">HVAC/R</span></a></li>
+                </ul>
+              </li>
+              <li><a class="nav-link" href="learning-paths.html">Learning Paths</a></li>
+              <li><a class="nav-link" href="resources.html">Resources</a></li>
+              <li><a class="nav-link" href="community.html">Community</a></li>
+            </ul>
+
+            <div class="nav-actions">
+              <a class="btn btn-ghost" href="signin.html">Sign in</a>
+              <a class="btn btn-primary" href="get-started.html">Get started</a>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main" class="main" role="main">
+      <div class="shell">
+        <h1 class="hero-title">HVAC/R</h1>
+        <p class="hero-subtitle">
+          Heating, Ventilation, Air Conditioning &amp; Refrigeration courses and resources.
+        </p>
+      </div>
+    </main>
+
+    <footer class="legal-footer" role="contentinfo" aria-label="Legal">
+      <div class="shell legal-footer__inner">
+        <small class="legal-footer__text">© <span data-year></span> TRADE BUILT. All rights reserved.</small>
+      </div>
+    </footer>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
