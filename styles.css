@@ -15,6 +15,10 @@
   --shadow-dark: 0 12px 34px rgba(0,0,0,.45);
   --max: 1120px;
   --legal-footer-height: 44px;
+  /* Header logo sizing (responsive) */
+  /* Larger than original, but not oversized */
+  --brand-logo-w: clamp(240px, 36vw, 420px);
+  --brand-logo-h: clamp(84px, 10vw, 140px);
 }
 
 *{box-sizing:border-box}
@@ -160,8 +164,8 @@ body{
 .nav{
   display:flex;
   align-items:center;
-  gap: 14px;
-  padding: 12px 0;
+  gap: 10px;
+  padding: 6px 0;
 }
 
 .brand{
@@ -179,8 +183,9 @@ body{
   display:inline-flex;
   align-items:center;
   justify-content:flex-start;
-  width: 288px; /* reserve space for the visually scaled logo */
-  height: 96px;
+  /* Reserve space for the visually scaled logo, but avoid colliding with nav controls */
+  width: min(var(--brand-logo-w), calc(100vw - 120px));
+  height: var(--brand-logo-h);
   border-radius: 0;
   background: transparent;
   border: 0;
@@ -189,9 +194,9 @@ body{
 
 .brand-logo{
   display:block;
-  width: 288px;     /* match the wide logo aspect ratio */
+  width: min(var(--brand-logo-w), calc(100vw - 120px)); /* match the wide logo aspect ratio */
   height: auto;
-  max-height: 96px; /* keep header height stable */
+  max-height: var(--brand-logo-h); /* keep header height stable */
   object-fit: contain;
   transition: transform .18s ease;
   will-change: transform;
@@ -230,11 +235,12 @@ body{
 }
 
 @media (max-width: 860px){
-  .brand-logo{
-    width: 200px;
-    max-height: 72px;
+  /* Slightly reduce the logo on small screens to protect the hamburger button */
+  :root{
+    /* Mobile: keep it bold, but avoid eating the whole header */
+    --brand-logo-w: clamp(200px, 54vw, 300px);
+    --brand-logo-h: clamp(72px, 16vw, 110px);
   }
-  .brand-badge{width:200px; height:72px}
 }
 
 .nav-toggle{
@@ -285,7 +291,7 @@ body{
   display:flex;
   flex: 1;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   margin:0;
   padding:0;
   list-style:none;
@@ -294,9 +300,9 @@ body{
 .nav-link{
   display:inline-flex;
   align-items:center;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 12px;
+  height: 34px;
+  padding: 0 9px;
+  border-radius: 9px;
   text-decoration:none;
   color: inherit;
   font-size: 14px;
@@ -440,7 +446,7 @@ body{
 .nav-actions{
   display:flex;
   align-items:center;
-  gap: 10px;
+  gap: 6px;
   margin-left: auto;
 }
 
@@ -448,9 +454,9 @@ body{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 12px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 9px;
   text-decoration:none;
   font-size: 14px;
   font-weight: 600;
