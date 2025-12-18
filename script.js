@@ -174,6 +174,7 @@
     panel.dataset.state = nextOpen ? 'open' : 'closed';
     toggle.setAttribute('aria-expanded', String(nextOpen));
     toggle.setAttribute('aria-label', nextOpen ? 'Close menu' : 'Open menu');
+    if (document.body) document.body.classList.toggle('nav-open', Boolean(nextOpen));
     if (!nextOpen) closeAllDropdowns();
   }
 

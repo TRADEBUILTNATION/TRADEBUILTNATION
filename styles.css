@@ -16,6 +16,8 @@
   --max: 1120px;
   --legal-footer-height: 44px;
   --nav-text-size: 14px;
+  --gutter: 32px;
+  --tap: 44px;
   /* Header logo sizing (responsive) */
   /* Larger than original, but not oversized */
   --brand-logo-w: clamp(240px, 36vw, 420px);
@@ -24,6 +26,7 @@
 
 *{box-sizing:border-box}
 html,body{height:100%}
+html{-webkit-text-size-adjust: 100%}
 body{
   margin:0;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -35,6 +38,10 @@ body{
   padding-bottom: var(--legal-footer-height);
   padding-bottom: calc(var(--legal-footer-height) + env(safe-area-inset-bottom));
 }
+
+body.nav-open{overflow:hidden}
+
+img,svg,video{max-width:100%; height:auto}
 
 .sr-only{
   position:absolute;
@@ -59,7 +66,7 @@ body{
 }
 
 .shell{
-  width: min(100% - 32px, var(--max));
+  width: min(100% - var(--gutter), var(--max));
   margin-inline:auto;
 }
 
@@ -84,6 +91,7 @@ body{
   border-bottom: 1px solid rgba(255,255,255,.14);
   background: #000;
   color: rgba(255,255,255,.92);
+  padding-top: env(safe-area-inset-top);
 }
 
 /* Header-specific colors on black */
@@ -185,7 +193,7 @@ body{
   align-items:center;
   justify-content:flex-start;
   /* Reserve space for the visually scaled logo, but avoid colliding with nav controls */
-  width: min(var(--brand-logo-w), calc(100vw - 120px));
+  width: min(var(--brand-logo-w), calc(100vw - (var(--tap) + 64px)));
   height: var(--brand-logo-h);
   border-radius: 0;
   background: transparent;
@@ -195,7 +203,7 @@ body{
 
 .brand-logo{
   display:block;
-  width: min(var(--brand-logo-w), calc(100vw - 120px)); /* match the wide logo aspect ratio */
+  width: min(var(--brand-logo-w), calc(100vw - (var(--tap) + 64px))); /* match the wide logo aspect ratio */
   height: auto;
   max-height: var(--brand-logo-h); /* keep header height stable */
   object-fit: contain;
@@ -239,8 +247,8 @@ body{
   /* Slightly reduce the logo on small screens to protect the hamburger button */
   :root{
     /* Mobile: keep it bold, but avoid eating the whole header */
-    --brand-logo-w: clamp(200px, 54vw, 300px);
-    --brand-logo-h: clamp(72px, 16vw, 110px);
+    --brand-logo-w: clamp(170px, 50vw, 260px);
+    --brand-logo-h: clamp(56px, 14vw, 84px);
   }
 }
 
@@ -249,8 +257,8 @@ body{
   display:none;
   align-items:center;
   justify-content:center;
-  width: 42px;
-  height: 42px;
+  width: var(--tap);
+  height: var(--tap);
   border-radius: 12px;
   border: 1px solid var(--stroke);
   background: rgba(255,255,255,.55);
@@ -302,8 +310,8 @@ body{
 .nav-link{
   display:inline-flex;
   align-items:center;
-  height: 34px;
-  padding: 0 9px;
+  height: 36px;
+  padding: 0 10px;
   border-radius: 9px;
   text-decoration:none;
   color: inherit;
@@ -457,8 +465,8 @@ body{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  height: 34px;
-  padding: 0 10px;
+  height: 36px;
+  padding: 0 12px;
   border-radius: 9px;
   text-decoration:none;
   font-size: var(--nav-text-size);
@@ -490,18 +498,23 @@ body{
 .btn-primary:active{background: #cc7600}
 
 .main{padding: 56px 0}
-.hero-title{font-size: clamp(32px, 4vw, 48px); margin: 0 0 10px}
+.hero-title{font-size: clamp(32px, 4vw, 48px); line-height: 1.08; margin: 0 0 10px; letter-spacing: -0.01em}
 .hero-subtitle{margin:0; max-width: 60ch; color: var(--muted); font-size: 16px; line-height: 1.5}
 @media (prefers-color-scheme: dark){.hero-subtitle{color: var(--muted-dark)}}
 
 /* Mobile */
 @media (max-width: 860px){
+  :root{
+    --gutter: 24px;
+    --nav-text-size: 15px;
+  }
+
   .nav-toggle{display:inline-flex}
   .nav-panel{
     position: absolute;
-    left: 16px;
-    right: 16px;
-    top: 64px;
+    left: max(12px, env(safe-area-inset-left));
+    right: max(12px, env(safe-area-inset-right));
+    top: calc(100% + 10px);
     display: grid;
     gap: 12px;
     padding: 14px;
@@ -515,6 +528,9 @@ body{
     opacity: 0;
     pointer-events: none;
     transition: opacity .15s ease, transform .15s ease;
+    max-height: min(70vh, 520px);
+    overflow: auto;
+    overscroll-behavior: contain;
   }
 
   .nav{position:relative}
@@ -522,6 +538,15 @@ body{
   .nav-link{width: 100%; justify-content: flex-start}
   .nav-actions{flex-direction: column; align-items: stretch}
   .btn{width: 100%}
+
+  /* Mobile active state: underline text only (not the full row width) */
+  .site-header .nav-panel .nav-link::after{content:none}
+  .site-header .nav-panel .dropdown-toggle .nav-label::after{content:none}
+  .site-header .nav-panel [aria-current="page"]{
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 7px;
+  }
 
   .nav-item--dropdown{width: 100%}
   .dropdown-toggle{width: 100%; justify-content: space-between}
@@ -547,6 +572,22 @@ body{
     transform: translateY(0);
     pointer-events: auto;
   }
+
+  /* iOS-like tap targets and spacing */
+  .nav-link,
+  .btn,
+  .dropdown-item{
+    min-height: var(--tap);
+    height: auto;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .dropdown-menu{border-radius: 14px}
+
+  .main{padding: 32px 0}
+  .hero-title{font-size: clamp(28px, 7vw, 40px)}
+  .hero-subtitle{font-size: 15px; line-height: 1.55}
 }
 
 /* Sticky legal footer */
