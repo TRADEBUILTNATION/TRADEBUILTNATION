@@ -225,6 +225,8 @@ img,svg,video{max-width:100%; height:auto}
   .site-header .nav-link::after{transition:none}
   .site-header .dropdown-toggle .nav-label::after{transition:none}
   .dropdown-item .dropdown-label::after{transition:none}
+  .course-card{transition:none}
+  .course-card:hover{transform:none}
 }
 
 .brand-fallback{
@@ -244,11 +246,11 @@ img,svg,video{max-width:100%; height:auto}
 }
 
 @media (max-width: 860px){
-  /* Slightly reduce the logo on small screens to protect the hamburger button */
+  /* Mobile-only: make the logo bigger, while still protecting the hamburger button */
   :root{
-    /* Mobile: keep it bold, but avoid eating the whole header */
-    --brand-logo-w: clamp(170px, 50vw, 260px);
-    --brand-logo-h: clamp(56px, 14vw, 84px);
+    /* Wider & taller on phones; still capped and constrained by the width calc() in .brand-logo */
+    --brand-logo-w: clamp(220px, 64vw, 340px);
+    --brand-logo-h: clamp(72px, 18vw, 112px);
   }
 }
 
@@ -501,6 +503,92 @@ img,svg,video{max-width:100%; height:auto}
 .hero-title{font-size: clamp(32px, 4vw, 48px); line-height: 1.08; margin: 0 0 10px; letter-spacing: -0.01em}
 .hero-subtitle{margin:0; max-width: 60ch; color: var(--muted); font-size: 16px; line-height: 1.5}
 @media (prefers-color-scheme: dark){.hero-subtitle{color: var(--muted-dark)}}
+
+/* Sections */
+.section-header{margin-top: 28px}
+.section-title{
+  margin: 0 0 6px;
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+.section-subtitle{
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+@media (prefers-color-scheme: dark){.section-subtitle{color: var(--muted-dark)}}
+
+/* Course grid */
+.courses-section{margin-top: 22px}
+.course-grid{
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+@media (max-width: 980px){
+  .course-grid{grid-template-columns: repeat(2, minmax(0, 1fr))}
+}
+@media (max-width: 520px){
+  .course-grid{grid-template-columns: 1fr}
+}
+
+.course-card{
+  border-radius: var(--radius);
+  border: 1px solid var(--stroke);
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 1px 0 rgba(0,0,0,.03);
+  padding: 16px 16px 14px;
+  min-height: 110px;
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-decoration: none;
+  color: inherit;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+  will-change: transform;
+  outline: none;
+}
+@media (prefers-color-scheme: dark){
+  .course-card{
+    border-color: var(--stroke-dark);
+    background: rgba(20,22,28,.62);
+    box-shadow: 0 1px 0 rgba(255,255,255,.06);
+  }
+}
+
+@media (hover:hover) and (pointer:fine){
+  .course-card:hover{
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow);
+    border-color: rgba(10,132,255,.22);
+  }
+  @media (prefers-color-scheme: dark){
+    .course-card:hover{
+      box-shadow: var(--shadow-dark);
+      border-color: rgba(10,132,255,.35);
+    }
+  }
+}
+
+.course-card:focus-visible{
+  outline: 3px solid rgba(10,132,255,.35);
+  outline-offset: 3px;
+}
+
+.course-card__title{
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+.course-card__meta{
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+@media (prefers-color-scheme: dark){.course-card__meta{color: var(--muted-dark)}}
 
 /* Mobile */
 @media (max-width: 860px){
