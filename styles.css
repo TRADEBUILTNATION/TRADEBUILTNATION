@@ -543,7 +543,8 @@ img,svg,video{max-width:100%; height:auto}
   min-height: 110px;
   display:flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 10px;
   text-decoration: none;
   color: inherit;
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
@@ -584,7 +585,7 @@ img,svg,video{max-width:100%; height:auto}
   letter-spacing: -0.01em;
 }
 .course-card__meta{
-  margin: 12px 0 0;
+  margin: 0;
   font-size: 13px;
   color: var(--muted);
 }

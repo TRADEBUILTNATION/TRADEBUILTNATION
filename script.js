@@ -80,6 +80,7 @@
     const here = new URL(window.location.href);
     const currentKey = normalizePageKey(here);
     const hash = window.location.hash;
+    const sectionKey = currentKey.startsWith('hvacr-') ? 'hvacr' : currentKey;
 
     if (hash) {
       const match = links.find((a) => {
@@ -139,6 +140,26 @@
       return setActiveElements(els);
     }
 
+    // Treat course detail pages as belonging to their course category page.
+    // Example: hvacr-fundamentals.html should keep "Courses" + "HVAC/R" underlined in the nav.
+    if (sectionKey !== currentKey) {
+      const sectionItem = dropdownItems.find((a) => {
+        try {
+          const u = new URL(a.href);
+          return normalizePageKey(u) === sectionKey && u.hash === '';
+        } catch {
+          return false;
+        }
+      });
+      if (sectionItem instanceof HTMLElement) {
+        const container = sectionItem.closest('.nav-item--dropdown');
+        const parentToggle = container ? container.querySelector('.dropdown-toggle') : null;
+        const els = [sectionItem];
+        if (parentToggle instanceof HTMLElement) els.push(parentToggle);
+        return setActiveElements(els);
+      }
+    }
+
     // If we're on a page that belongs to a dropdown menu (even if items are hash links),
     // underline the parent toggle so the nav still reflects the current section.
     const parentOnlyMatch = dropdownContainers.find((container) => {
@@ -148,7 +169,7 @@
         if (!(a instanceof HTMLAnchorElement)) return false;
         try {
           const u = new URL(a.href);
-          return normalizePageKey(u) === currentKey;
+          return normalizePageKey(u) === currentKey || normalizePageKey(u) === sectionKey;
         } catch {
           return false;
         }
