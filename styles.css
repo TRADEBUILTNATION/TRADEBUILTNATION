@@ -542,6 +542,8 @@ img,svg,video{max-width:100%; height:auto}
   /* Mobile active state: underline text only (not the full row width) */
   .site-header .nav-panel .nav-link::after{content:none}
   .site-header .nav-panel .dropdown-toggle .nav-label::after{content:none}
+  .underline-armed .site-header .nav-panel .nav-link[aria-current="page"]::after{content:none}
+  .underline-armed .site-header .nav-panel .dropdown-toggle[aria-current="page"] .nav-label::after{content:none}
   .site-header .nav-panel [aria-current="page"]{
     text-decoration-line: underline;
     text-decoration-thickness: 2px;
