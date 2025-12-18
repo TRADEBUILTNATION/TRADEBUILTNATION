@@ -61,7 +61,22 @@
                   <li><a class="dropdown-item" href="hvacr.html"><span class="dropdown-label">HVAC/R</span></a></li>
                 </ul>
               </li>
-              <li><a class="nav-link" href="resources.html">Resources</a></li>
+              <li class="nav-item nav-item--dropdown">
+                <button
+                  class="nav-link dropdown-toggle"
+                  type="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  aria-controls="resources-menu"
+                >
+                  <span class="nav-label">Resources</span> <span class="dropdown-caret" aria-hidden="true"></span>
+                </button>
+                <ul class="dropdown-menu" id="resources-menu" data-state="closed" role="list">
+                  <li>
+                    <a class="dropdown-item" href="resources.html#calculators"><span class="dropdown-label">Calculators</span></a>
+                  </li>
+                </ul>
+              </li>
               <li><a class="nav-link" href="community.html" aria-current="page">Community</a></li>
             </ul>
 

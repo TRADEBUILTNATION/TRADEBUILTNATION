@@ -91,6 +91,23 @@
         }
       });
       if (match) return setActiveElements([match]);
+
+      // Hash match for dropdown items (e.g. resources.html#some-calculator)
+      const ddHashMatch = dropdownItems.find((a) => {
+        try {
+          const u = new URL(a.href);
+          return normalizePageKey(u) === currentKey && u.hash === hash;
+        } catch {
+          return false;
+        }
+      });
+      if (ddHashMatch instanceof HTMLElement) {
+        const container = ddHashMatch.closest('.nav-item--dropdown');
+        const parentToggle = container ? container.querySelector('.dropdown-toggle') : null;
+        const els = [ddHashMatch];
+        if (parentToggle instanceof HTMLElement) els.push(parentToggle);
+        return setActiveElements(els);
+      }
     }
 
     // Exact page match for top-level links + action buttons (e.g. get-started.html).
@@ -104,11 +121,12 @@
     });
     if (pageMatch) return setActiveElements([pageMatch]);
 
-    // Page match for dropdown items (e.g. hvacr.html) + also underline the parent "Courses".
+    // Page match for dropdown items (e.g. hvacr.html) + also underline the parent dropdown toggle.
     const ddMatch = dropdownItems.find((a) => {
       try {
         const u = new URL(a.href);
-        return normalizePageKey(u) === currentKey;
+        // Only treat full-page dropdown items (no hash) as direct "page matches".
+        return normalizePageKey(u) === currentKey && u.hash === '';
       } catch {
         return false;
       }
@@ -119,6 +137,26 @@
       const els = [ddMatch];
       if (parentToggle instanceof HTMLElement) els.push(parentToggle);
       return setActiveElements(els);
+    }
+
+    // If we're on a page that belongs to a dropdown menu (even if items are hash links),
+    // underline the parent toggle so the nav still reflects the current section.
+    const parentOnlyMatch = dropdownContainers.find((container) => {
+      if (!(container instanceof HTMLElement)) return false;
+      const items = Array.from(container.querySelectorAll('.dropdown-item'));
+      return items.some((a) => {
+        if (!(a instanceof HTMLAnchorElement)) return false;
+        try {
+          const u = new URL(a.href);
+          return normalizePageKey(u) === currentKey;
+        } catch {
+          return false;
+        }
+      });
+    });
+    if (parentOnlyMatch instanceof HTMLElement) {
+      const parentToggle = parentOnlyMatch.querySelector('.dropdown-toggle');
+      if (parentToggle instanceof HTMLElement) return setActiveElements([parentToggle]);
     }
 
     // Fallback: only underline Home when we're actually on the Home page.

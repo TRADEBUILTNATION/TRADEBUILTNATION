@@ -15,6 +15,7 @@
   --shadow-dark: 0 12px 34px rgba(0,0,0,.45);
   --max: 1120px;
   --legal-footer-height: 44px;
+  --nav-text-size: 14px;
   /* Header logo sizing (responsive) */
   /* Larger than original, but not oversized */
   --brand-logo-w: clamp(240px, 36vw, 420px);
@@ -291,7 +292,8 @@ body{
   display:flex;
   flex: 1;
   justify-content: center;
-  gap: 4px;
+  /* Even, comfortable spacing between top-level links (desktop). */
+  gap: clamp(10px, 2.2vw, 22px);
   margin:0;
   padding:0;
   list-style:none;
@@ -305,7 +307,7 @@ body{
   border-radius: 9px;
   text-decoration:none;
   color: inherit;
-  font-size: 14px;
+  font-size: var(--nav-text-size);
   color: var(--muted);
   position: relative;
 }
@@ -375,7 +377,7 @@ body{
   text-decoration:none;
   position: relative;
   color: rgba(255,255,255,.82);
-  font-size: 14px;
+  font-size: var(--nav-text-size);
 }
 .dropdown-item .dropdown-label{
   position: relative;
@@ -458,7 +460,7 @@ body{
   padding: 0 10px;
   border-radius: 9px;
   text-decoration:none;
-  font-size: 14px;
+  font-size: var(--nav-text-size);
   font-weight: 600;
   border: 1px solid transparent;
 }
