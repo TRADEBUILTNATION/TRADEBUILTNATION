@@ -287,3 +287,243 @@
     setOpen(false);
   });
 })();
+
+(function () {
+  // Module experience: progress tracking, outline navigation, active section highlighting.
+  const root = document.querySelector('[data-module]');
+  if (!(root instanceof HTMLElement)) return;
+
+  if (document.body) document.body.classList.add('module-page');
+
+  // Sync CSS vars so the module can be true "no-scroll" full-screen (header/footer heights vary).
+  function syncChromeHeights() {
+    const header = document.querySelector('.site-header');
+    const footer = document.querySelector('.legal-footer');
+    const headerH = header instanceof HTMLElement ? Math.round(header.getBoundingClientRect().height) : 0;
+    const footerH = footer instanceof HTMLElement ? Math.round(footer.getBoundingClientRect().height) : 0;
+    document.documentElement.style.setProperty('--site-header-h', `${headerH}px`);
+    document.documentElement.style.setProperty('--legal-footer-h', `${footerH || 44}px`);
+  }
+  syncChromeHeights();
+  window.addEventListener('resize', syncChromeHeights);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', syncChromeHeights);
+
+  const moduleKey = root.getAttribute('data-module') || 'unknown-module';
+  const storageKey = `tb:module-state:${moduleKey}`;
+
+  const progressEl = root.querySelector('[data-module-progress]');
+  const progressFill = root.querySelector('[data-module-progress-fill]');
+  const progressText = root.querySelector('[data-module-progress-text]');
+
+  const resetBtn = root.querySelector('[data-module-reset]');
+  const statusEl = root.querySelector('[data-module-status]');
+
+  const sectionEls = Array.from(root.querySelectorAll('[data-module-section]')).filter(
+    (el) => el instanceof HTMLElement
+  );
+  const sectionKeys = sectionEls
+    .map((el) => (el instanceof HTMLElement ? el.getAttribute('data-module-section') || el.id : null))
+    .filter((v) => typeof v === 'string' && v.length > 0);
+
+  let statusTimer = null;
+  function setStatus(message, tone = 'neutral') {
+    if (!(statusEl instanceof HTMLElement)) return;
+    if (statusTimer) window.clearTimeout(statusTimer);
+    statusEl.textContent = message || '';
+    statusEl.dataset.tone = tone;
+    statusTimer = window.setTimeout(() => {
+      statusEl.textContent = '';
+      statusEl.dataset.tone = 'neutral';
+    }, 2400);
+  }
+
+  function loadState() {
+    try {
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return { current: sectionKeys[0] || null };
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== 'object') return { current: sectionKeys[0] || null };
+      const current = typeof parsed.current === 'string' ? parsed.current : sectionKeys[0] || null;
+      return { current };
+    } catch {
+      return { current: sectionKeys[0] || null };
+    }
+  }
+
+  function saveState(state) {
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch {
+      // ignore
+    }
+  }
+
+  function indexOfKey(key) {
+    return sectionKeys.indexOf(key);
+  }
+
+  function updateProgressUI(state) {
+    const total = Math.max(1, sectionKeys.length);
+    const current = typeof state.current === 'string' ? state.current : sectionKeys[0];
+    const idx = Math.max(0, indexOfKey(current));
+    const step = Math.min(total, idx + 1);
+    const percent = Math.round((step / total) * 100);
+
+    if (progressFill instanceof HTMLElement) progressFill.style.width = `${percent}%`;
+    if (progressText instanceof HTMLElement) {
+      progressText.textContent = `Lesson ${step} of ${total}`;
+    }
+    if (progressEl instanceof HTMLElement) {
+      progressEl.setAttribute('aria-valuenow', String(percent));
+    }
+  }
+
+  function syncRowStates(state) {
+    const rows = Array.from(root.querySelectorAll('.module-objectives__row')).filter(
+      (el) => el instanceof HTMLElement
+    );
+    for (const row of rows) {
+      if (!(row instanceof HTMLElement)) continue;
+      const link = row.querySelector('[data-module-jump]');
+      if (!(link instanceof HTMLElement)) continue;
+      const key = link.getAttribute('data-module-jump') || '';
+      row.dataset.active = typeof state.current === 'string' && state.current === key ? 'true' : 'false';
+    }
+  }
+
+  function getActiveSectionEl(state) {
+    const key = typeof state.current === 'string' ? state.current : sectionKeys[0];
+    const el = root.querySelector(`[data-module-section="${CSS.escape(key)}"]`);
+    return el instanceof HTMLElement ? el : null;
+  }
+
+  function syncBottomNav(state) {
+    const current = typeof state.current === 'string' ? state.current : sectionKeys[0];
+    const idx = indexOfKey(current);
+    const prevKey = sectionKeys[idx - 1] || null;
+    const nextKey = sectionKeys[idx + 1] || null;
+
+    const activeSection = getActiveSectionEl(state);
+    if (!activeSection) return;
+
+    const prevBtns = Array.from(activeSection.querySelectorAll('[data-module-prev]')).filter(
+      (el) => el instanceof HTMLButtonElement
+    );
+    const nextBtns = Array.from(activeSection.querySelectorAll('[data-module-next]')).filter(
+      (el) => el instanceof HTMLButtonElement
+    );
+
+    for (const b of prevBtns) b.disabled = !prevKey;
+    for (const b of nextBtns) {
+      b.disabled = false; // Finish is allowed
+    }
+  }
+
+  function setActiveSection(key, state, opts = { focus: true }) {
+    const nextKey = key;
+    if (!nextKey) return;
+
+    state.current = nextKey;
+    saveState(state);
+
+    for (const el of sectionEls) {
+      if (!(el instanceof HTMLElement)) continue;
+      const k = el.getAttribute('data-module-section') || el.id;
+      el.hidden = k !== nextKey;
+    }
+
+    // Outline active state (reuse existing data-active styling)
+    const outlineLinks = Array.from(root.querySelectorAll('[data-module-outline-link]')).filter(
+      (el) => el instanceof HTMLAnchorElement
+    );
+    for (const a of outlineLinks) {
+      if (!(a instanceof HTMLAnchorElement)) continue;
+      const k = a.getAttribute('data-module-jump') || '';
+      a.dataset.active = k === nextKey ? 'true' : 'false';
+    }
+    syncRowStates(state);
+    syncBottomNav(state);
+    updateProgressUI(state);
+
+    // Focus the section for accessibility.
+    if (opts && opts.focus) {
+      const target = root.querySelector(`[data-module-section="${CSS.escape(nextKey)}"]`);
+      if (target instanceof HTMLElement) {
+        window.setTimeout(() => target.focus({ preventScroll: true }), 0);
+      }
+    }
+  }
+
+  // Init state
+  const state = loadState();
+  updateProgressUI(state);
+  syncRowStates(state);
+
+  // Outline navigation becomes "switch section" in the player.
+  const outlineLinks = Array.from(root.querySelectorAll('[data-module-outline-link]')).filter(
+    (el) => el instanceof HTMLAnchorElement
+  );
+  for (const a of outlineLinks) {
+    if (!(a instanceof HTMLAnchorElement)) continue;
+    a.addEventListener('click', (e) => {
+      const key = a.getAttribute('data-module-jump');
+      if (!key) return;
+      e.preventDefault();
+      setActiveSection(key, state, { focus: true });
+    });
+  }
+
+  // Player next/prev
+  function goPrev() {
+    const current = typeof state.current === 'string' ? state.current : sectionKeys[0];
+    const idx = indexOfKey(current);
+    const prevKey = sectionKeys[idx - 1];
+    if (prevKey) setActiveSection(prevKey, state, { focus: true });
+  }
+  function goNext() {
+    const current = typeof state.current === 'string' ? state.current : sectionKeys[0];
+    const idx = indexOfKey(current);
+    const nextKey = sectionKeys[idx + 1];
+    if (!nextKey) {
+      // Finish
+      saveState(state);
+      updateProgressUI(state);
+      syncRowStates(state);
+      syncBottomNav(state);
+      setStatus('Module complete.', 'neutral');
+      return;
+    }
+    setActiveSection(nextKey, state, { focus: true });
+  }
+
+  // Bottom nav buttons exist per section; attach listeners to all of them.
+  const prevButtons = Array.from(root.querySelectorAll('[data-module-prev]')).filter(
+    (el) => el instanceof HTMLButtonElement
+  );
+  const nextButtons = Array.from(root.querySelectorAll('[data-module-next]')).filter(
+    (el) => el instanceof HTMLButtonElement
+  );
+  for (const b of prevButtons) b.addEventListener('click', goPrev);
+  for (const b of nextButtons) b.addEventListener('click', goNext);
+
+  // Initial section: resume if valid, otherwise pick first.
+  const resumeKey = typeof state.current === 'string' ? state.current : sectionKeys[0];
+  const initialKey = resumeKey && indexOfKey(resumeKey) >= 0 ? resumeKey : sectionKeys[0];
+  setActiveSection(initialKey, state, { focus: false });
+  syncBottomNav(state);
+
+  // Reset progress
+  if (resetBtn instanceof HTMLButtonElement) {
+    resetBtn.addEventListener('click', () => {
+      const ok = window.confirm('Reset module progress? This will uncheck all completed sections.');
+      if (!ok) return;
+      state.current = sectionKeys[0] || null;
+      saveState(state);
+      updateProgressUI(state);
+      syncRowStates(state);
+      const first = sectionKeys[0] || null;
+      if (first) setActiveSection(first, state, { focus: false });
+    });
+  }
+
+})();
