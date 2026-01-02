@@ -140,8 +140,8 @@
       return setActiveElements(els);
     }
 
-    // Treat course detail pages as belonging to their course category page.
-    // Example: hvacr-fundamentals.html should keep "Courses" + "HVAC/R" underlined in the nav.
+    // Treat detail pages as belonging to their parent section page.
+    // Example: hvacr-fundamentals.html should keep its parent section underlined in the nav.
     if (sectionKey !== currentKey) {
       const sectionItem = dropdownItems.find((a) => {
         try {
@@ -222,7 +222,7 @@
     });
   }
 
-  // Courses dropdown toggle (mobile/touch)
+  // Dropdown toggle (mobile/touch)
   for (const container of dropdownContainers) {
     const btn = container.querySelector('.dropdown-toggle');
     if (!(btn instanceof HTMLElement)) continue;

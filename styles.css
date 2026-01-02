@@ -190,7 +190,7 @@ img,svg,video{max-width:100%; height:auto}
   will-change: transform, opacity;
 }
 
-/* Dropdown toggle: underline only the "Courses" label, not the caret */
+/* Dropdown toggle: underline only the label, not the caret */
 .site-header .dropdown-toggle::after{content:none}
 .site-header .dropdown-toggle .nav-label{
   position: relative;
@@ -419,7 +419,7 @@ img,svg,video{max-width:100%; height:auto}
   .nav-link:hover{background: rgba(255,255,255,.08)}
 }
 
-/* Courses dropdown */
+/* Dropdown menus */
 .dropdown-toggle{
   appearance: none;
   -webkit-appearance: none;
