@@ -1,0 +1,9 @@
+﻿{
+    "basePath":  "assets/3D Models/",
+    "models":  [
+                   {
+                       "name":  "Mini Split Outdoor Unit",
+                       "file":  "Mini-Split Outdoor Unit.glb"
+                   }
+               ]
+}

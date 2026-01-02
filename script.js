@@ -527,3 +527,176 @@
   }
 
 })();
+
+(function () {
+  // 3D models page: populate list from manifest + load selected model into <model-viewer>.
+  const root = document.querySelector('[data-models-page]');
+  if (!(root instanceof HTMLElement)) return;
+
+  const listEl = root.querySelector('[data-models-list]');
+  const statusEl = root.querySelector('[data-models-status]');
+  const viewer = root.querySelector('[data-model-viewer]');
+  const activeNameEl = root.querySelector('[data-models-active-name]');
+
+  if (!(listEl instanceof HTMLElement) || !(viewer instanceof HTMLElement)) return;
+
+  function setStatus(message, isError = false) {
+    if (!(statusEl instanceof HTMLElement)) return;
+    statusEl.textContent = message || '';
+    statusEl.style.color = isError ? '#ff453a' : '';
+    if (isError) console.error('[3D Models]', message);
+  }
+
+  // Check if running from file:// protocol (won't work)
+  if (window.location.protocol === 'file:') {
+    setStatus('Cannot load models from file://. Please run a local server (e.g., "npx serve" or "python -m http.server").', true);
+    if (activeNameEl instanceof HTMLElement) activeNameEl.textContent = 'Server required';
+    return;
+  }
+
+  function encodePath(path) {
+    // Encode each segment so spaces and other chars work (e.g. "3D Models" folder, filenames).
+    return String(path)
+      .split('/')
+      .map((seg) => encodeURIComponent(seg))
+      .join('/')
+      .replace(/%2F/g, '/');
+  }
+
+  function normalizeManifest(raw) {
+    // Supports:
+    // - { basePath: "assets/3D Models/", models: [{file,name}, ...] }
+    // - ["a.glb", "b.glb"]
+    if (Array.isArray(raw)) {
+      return { basePath: 'assets/3D Models/', models: raw.map((f) => ({ file: String(f) })) };
+    }
+    if (!raw || typeof raw !== 'object') return { basePath: 'assets/3D Models/', models: [] };
+
+    const basePath = typeof raw.basePath === 'string' && raw.basePath.trim() ? raw.basePath : 'assets/3D Models/';
+    const models = Array.isArray(raw.models) ? raw.models : [];
+    return {
+      basePath,
+      models: models
+        .map((m) => {
+          if (typeof m === 'string') return { file: m };
+          if (m && typeof m === 'object' && typeof m.file === 'string') {
+            return { file: m.file, name: typeof m.name === 'string' ? m.name : undefined };
+          }
+          return null;
+        })
+        .filter(Boolean),
+    };
+  }
+
+  function displayNameFor(model) {
+    const file = String(model.file || '');
+    const fromName = typeof model.name === 'string' && model.name.trim() ? model.name.trim() : '';
+    if (fromName) return fromName;
+    return file.replace(/\.(glb|gltf)$/i, '').replace(/[_-]+/g, ' ').trim() || 'Untitled model';
+  }
+
+  function modelSrc(basePath, file) {
+    const base = String(basePath || 'assets/3D Models/');
+    const joined = base.endsWith('/') ? `${base}${file}` : `${base}/${file}`;
+    return encodePath(joined);
+  }
+
+  function setActiveButton(btn) {
+    const buttons = Array.from(listEl.querySelectorAll('button.model-item'));
+    for (const b of buttons) {
+      if (!(b instanceof HTMLButtonElement)) continue;
+      b.setAttribute('aria-current', b === btn ? 'true' : 'false');
+    }
+  }
+
+  function selectModel(entry, btn, manifest) {
+    const name = displayNameFor(entry);
+    const src = modelSrc(manifest.basePath, entry.file);
+
+    console.log('[3D Models] Loading model:', src);
+    viewer.setAttribute('src', src);
+    viewer.setAttribute('alt', name);
+    if (activeNameEl instanceof HTMLElement) activeNameEl.textContent = name;
+
+    if (btn instanceof HTMLButtonElement) setActiveButton(btn);
+    setStatus(`Loaded: ${name}`);
+  }
+
+  async function init() {
+    setStatus('Loading model list…');
+
+    // Wait for model-viewer custom element to be defined
+    if (!customElements.get('model-viewer')) {
+      setStatus('Waiting for model-viewer component…');
+      try {
+        await Promise.race([
+          customElements.whenDefined('model-viewer'),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 10000))
+        ]);
+      } catch (e) {
+        setStatus('Failed to load 3D viewer component. Check your internet connection and refresh.', true);
+        if (activeNameEl instanceof HTMLElement) activeNameEl.textContent = 'Viewer unavailable';
+        return;
+      }
+    }
+
+    let manifest;
+    try {
+      const res = await fetch(`assets/models.json?v=${Date.now()}`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Manifest HTTP ${res.status}`);
+      const raw = await res.json();
+      manifest = normalizeManifest(raw);
+    } catch (err) {
+      console.error('[3D Models] Failed to load manifest:', err);
+      setStatus('Could not load models list. Run a local server (e.g., "npx serve") and refresh.', true);
+      if (activeNameEl instanceof HTMLElement) activeNameEl.textContent = 'Error loading';
+      return;
+    }
+
+    const models = (manifest.models || [])
+      .filter((m) => m && typeof m.file === 'string' && /\.(glb|gltf)$/i.test(m.file))
+      .slice()
+      .sort((a, b) => displayNameFor(a).localeCompare(displayNameFor(b)));
+
+    if (!models.length) {
+      setStatus('No models found in the manifest.');
+      if (activeNameEl instanceof HTMLElement) activeNameEl.textContent = 'No models available';
+      return;
+    }
+
+    // Render list
+    listEl.innerHTML = '';
+    for (const entry of models) {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'model-item';
+      btn.innerHTML = `<span class="model-item__name"></span><span class="model-item__meta">.glb</span>`;
+
+      const nameEl = btn.querySelector('.model-item__name');
+      const metaEl = btn.querySelector('.model-item__meta');
+      if (nameEl) nameEl.textContent = displayNameFor(entry);
+      if (metaEl) metaEl.textContent = (String(entry.file).split('.').pop() || '').toLowerCase();
+
+      btn.addEventListener('click', () => selectModel(entry, btn, manifest));
+      li.appendChild(btn);
+      listEl.appendChild(li);
+    }
+
+    // Listen for model-viewer errors
+    viewer.addEventListener('error', (e) => {
+      console.error('[3D Models] Model viewer error:', e);
+      setStatus('Failed to load 3D model. The file may be missing or corrupted.', true);
+    });
+
+    // Load first model by default
+    const firstBtn = listEl.querySelector('button.model-item');
+    const first = models[0];
+    if (first && firstBtn instanceof HTMLButtonElement) {
+      console.log('[3D Models] Auto-loading first model');
+      selectModel(first, firstBtn, manifest);
+    }
+  }
+
+  init();
+})();

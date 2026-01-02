@@ -17,3 +17,11 @@ If you want a local server (recommended for future routing):
 - PowerShell:
   - `python -m http.server 5173`
   - then open `http://localhost:5173`
+
+## 3D Models
+The 3D Models page (`3d-models.html`) reads a manifest at `assets/models.json`.
+
+Whenever you add/remove `.glb` / `.gltf` files in `assets/3D Models/`, regenerate the manifest:
+
+- PowerShell:
+  - `.\tools\generate-models-manifest.ps1`

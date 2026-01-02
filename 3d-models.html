@@ -10,6 +10,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon-v2.png" />
     <link rel="manifest" href="site.webmanifest" />
     <link rel="stylesheet" href="styles.css?v=705a2ce" />
+
+    <!-- 3D model viewer web component -->
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -84,7 +87,44 @@
     <main id="main" class="main" role="main">
       <div class="shell">
         <h1 class="hero-title">3D Models</h1>
-        <p class="hero-subtitle">Trade-ready 3D assets, coming soon.</p>
+        <p class="hero-subtitle">View and inspect our 3D assets. Drag to rotate, scroll/pinch to zoom.</p>
+
+        <section class="models-layout" data-models-page aria-label="3D model viewer">
+          <div class="models-panel">
+            <div class="section-header">
+              <h2 class="section-title">Models</h2>
+              <p class="section-subtitle">Select a model to load it in the viewer.</p>
+            </div>
+
+            <p class="models-status" data-models-status role="status" aria-live="polite"></p>
+            <ul class="models-list" data-models-list role="list"></ul>
+          </div>
+
+          <div class="viewer-panel" aria-label="Selected model">
+            <div class="viewer-header">
+              <h2 class="viewer-title" data-models-active-name>Loading…</h2>
+              <p class="viewer-subtitle">Tip: drag to rotate, right-drag to pan, scroll/pinch to zoom.</p>
+            </div>
+
+            <div class="viewer-frame" aria-label="3D model viewport">
+              <model-viewer
+                class="model-viewer"
+                data-model-viewer
+                src=""
+                alt="3D model"
+                camera-controls
+                touch-action="pan-y"
+                shadow-intensity="1"
+                exposure="1"
+                environment-image="neutral"
+                interaction-prompt="auto"
+                loading="eager"
+              >
+                <div class="viewer-loading" slot="poster">Loading 3D model…</div>
+              </model-viewer>
+            </div>
+          </div>
+        </section>
       </div>
     </main>
 
